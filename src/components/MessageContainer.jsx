@@ -11,7 +11,7 @@ const Item = styled(Paper)(({ theme }) => ({
   textAlign: "center",
   color: theme.palette.text.secondary,
 }));
-
+console.log(123123123);
 export default function VariableWidthGrid() {
   return (
     <Box sx={{ flexGrow: 1 }}>
