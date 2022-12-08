@@ -9,52 +9,84 @@ const {
 
 module.exports.signUpNewUser = (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(500).json({
-      message: "Invail email or password",
-    });
-  }
-  const auth = getAuth();
-  createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      const user = userCredential.user;
-      console.log(user);
-      sendEmailVerification(auth.currentUser).then(() => {
-        console.log("email sent");
-      });
-      let id = Math.floor(Math.random() * 1000000);
-      // password = bcrypt.hashSync(password, saltRounds);
-      db.execute("SELECT * FROM tbl_users WHERE email = ?", [email])
-        .then((data) => {
-          let [rows] = data;
-          // console.log(data);
-          if (rows.length > 0) {
-            return Promise.reject("User already exist");
-          } else {
-            return db.execute("INSERT INTO tbl_users VALUES(?, ?, ?, ?)", [
-              id,
-              email,
-              password,
-              "false",
-            ]);
-          }
-        })
-        .then((data) => {
-          console.log(data);
-          res.status(200).json({
-            message: "Create one succesfully",
-            status: "success",
+  db.execute("SELECT * FROM tbl_users WHERE email = ?", [email]).then(
+    (data) => {
+      let [rows] = data;
+      // console.log(data);
+      if (rows.length > 0) {
+        res.status(500).json({ message: "User already exists" });
+      } else {
+        const auth = getAuth();
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            console.log(user);
+            sendEmailVerification(auth.currentUser).then(() => {
+              console.log("email sent");
+              db.execute("INSERT INTO tbl_users VALUES(?, ?, ?, ?)", [
+                id,
+                email,
+                password,
+                "false",
+              ]).then((data) => {
+                console.log(data);
+                res.status(200).json({
+                  message: "Create one succesfully",
+                  status: "success",
+                });
+              });
+            });
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // ..
           });
-        });
-      // .catch((err) => res.status(500).json({ message: err }));
+      }
+    }
+  );
 
-      // ...
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // ..
-    });
+  // const auth = getAuth();
+  // createUserWithEmailAndPassword(auth, email, password)
+  //   .then((userCredential) => {
+  //     const user = userCredential.user;
+  //     console.log(user);
+  //     sendEmailVerification(auth.currentUser).then(() => {
+  //       console.log("email sent");
+  //     });
+  //     let id = Math.floor(Math.random() * 1000000);
+  //     // password = bcrypt.hashSync(password, saltRounds);
+  //     db.execute("SELECT * FROM tbl_users WHERE email = ?", [email])
+  //       .then((data) => {
+  //         let [rows] = data;
+  //         // console.log(data);
+  //         if (rows.length > 0) {
+  //           return Promise.reject("User already exist");
+  //         } else {
+  //           return db.execute("INSERT INTO tbl_users VALUES(?, ?, ?, ?)", [
+  //             id,
+  //             email,
+  //             password,
+  //             "false",
+  //           ]);
+  //         }
+  //       })
+  //       .then((data) => {
+  //         console.log(data);
+  //         res.status(200).json({
+  //           message: "Create one succesfully",
+  //           status: "success",
+  //         });
+  //       });
+  //     // .catch((err) => res.status(500).json({ message: err }));
+
+  //     // ...
+  //   })
+  //   .catch((error) => {
+  //     const errorCode = error.code;
+  //     const errorMessage = error.message;
+  //     // ..
+  //   });
 };
 
 module.exports.login = (req, res) => {
