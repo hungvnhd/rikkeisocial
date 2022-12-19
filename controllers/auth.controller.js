@@ -99,6 +99,7 @@ module.exports.login = (req, res) => {
                   res.status(200).json({
                     message: "Login Successfully",
                     status: "success",
+                    userID: find.id,
                   });
                 });
               }
@@ -112,5 +113,4 @@ module.exports.login = (req, res) => {
       const errorCode = error.code;
       const errorMessage = error.message;
     });
-  //   .catch((err) => console.log(err));
 };

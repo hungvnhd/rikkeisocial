@@ -20,6 +20,7 @@ const firebaseConfig = {
 
 const authRoutes = require("./routers/auth.routes");
 const userRoutes = require("./routers/user.routes");
+const apiRoutes = require("./routers/api.routes");
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -34,6 +35,7 @@ server.get("/", (req, res) => {
 });
 server.use("/auth", authRoutes);
 server.use("/user", userRoutes);
+server.use("/api", apiRoutes);
 server.listen(8000, () => {
   console.log("server is running on http://127.0.0.1:8000");
 });

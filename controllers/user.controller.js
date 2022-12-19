@@ -46,3 +46,9 @@ module.exports.removeRequest = (req, res) => {
     })
     .catch((err) => console.log(err));
 };
+
+// module.exports.getFriends = (req, res) => {
+//   db.execute("SELECT * FROM tbl_friends").then((data) =>
+//     console.log(JSON.parse(data[1]))
+//   );
+// };
