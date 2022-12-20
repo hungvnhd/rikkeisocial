@@ -4,11 +4,16 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
+
 // import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
+
 const { initializeApp } = require("firebase/app");
+
 // Your web app's Firebase configuration
+
+// const storageRef = ref(storage, "some-child");
 const firebaseConfig = {
   apiKey: "AIzaSyAbdh6w97UsnL46_HQlUpWKTbU7IhBrP3o",
   authDomain: "rikkeisocial.firebaseapp.com",
@@ -24,6 +29,10 @@ const apiRoutes = require("./routers/api.routes");
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const { getStorage, ref, uploadBytes } = require("firebase/storage");
+
+const storage = getStorage();
+
 server.use(cors());
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
@@ -36,6 +45,7 @@ server.get("/", (req, res) => {
 server.use("/auth", authRoutes);
 server.use("/user", userRoutes);
 server.use("/api", apiRoutes);
+
 server.listen(8000, () => {
   console.log("server is running on http://127.0.0.1:8000");
 });
