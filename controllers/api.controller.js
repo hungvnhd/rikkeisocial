@@ -39,7 +39,7 @@ module.exports.createPost = (req, res) => {
 module.exports.getAllRequest = (req, res) => {
   db.execute("SELECT * FROM tbl_friends")
     .then((data) => {
-      console.log(data[0]);
+      res.status(200).json(data[0]);
     })
     .catch((err) => console.log(err));
 };
