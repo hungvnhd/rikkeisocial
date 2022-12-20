@@ -43,3 +43,36 @@ module.exports.getAllRequest = (req, res) => {
     })
     .catch((err) => console.log(err));
 };
+
+module.exports.getSignedInUserRequest = (req, res) => {
+  const id = req.params.id;
+
+  db.execute("SELECT * FROM tbl_users")
+    .then((data) => {
+      let [users] = data;
+      console.log(users);
+      db.execute("SELECT * FROM tbl_friends WHERE friendID=?", [id]).then(
+        (data) => {
+          let [requests] = data;
+          console.log(requests);
+          let result = requests.filter((e) => e.friendID === id);
+          let result2 = result.reduce((pre, curr) => {
+            users.forEach((e) => {
+              if (curr.id === e.id) {
+                curr.name = e.fullName;
+                curr.job = e.jobs;
+                curr.company = e.company;
+              }
+            });
+
+            pre.push(curr);
+
+            return pre;
+          }, []);
+          res.status(200).json(result2);
+        }
+      );
+    })
+
+    .catch((err) => console.log(err));
+};

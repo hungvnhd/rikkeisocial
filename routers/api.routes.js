@@ -6,6 +6,8 @@ router.get("/v1/users", apiController.getAll);
 router.get("/v1/users/:id", apiController.getById);
 router.get("/v1/posts/:id", apiController.getPostById);
 router.get("/v1/friends", apiController.getAllRequest);
+router.get("/v1/friends/:id", apiController.getSignedInUserRequest);
+
 router.post("/v1/posts", apiController.createPost);
 
 module.exports = router;
