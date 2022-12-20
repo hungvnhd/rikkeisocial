@@ -18,6 +18,7 @@ module.exports.addingFriend = (req, res) => {
 
 module.exports.acceptFriend = (req, res) => {
   const requestId = req.params.id;
+  console.log(requestId);
   db.execute("UPDATE tbl_friends SET added = ? WHERE requestID=?", [
     true,
     requestId,
