@@ -17,12 +17,10 @@ module.exports.addingFriend = (req, res) => {
 };
 
 module.exports.acceptFriend = (req, res) => {
-  const friendId = req.params.id;
-  const { userId } = req.signedCookies;
-  db.execute("UPDATE tbl_friends SET added = ? WHERE id = ? AND friendID =?", [
+  const requestId = req.params.id;
+  db.execute("UPDATE tbl_friends SET added = ? WHERE requestID=?", [
     true,
-    userId,
-    friendId,
+    requestId,
   ])
     .then((data) => {
       res.status(200).json({ message: "Friend request accepted" });
