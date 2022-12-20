@@ -62,6 +62,7 @@ module.exports.getSignedInUserRequest = (req, res) => {
                 curr.name = e.fullName;
                 curr.job = e.jobs;
                 curr.company = e.company;
+                curr.avatar = e.avatar;
               }
             });
 
