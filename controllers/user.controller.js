@@ -32,11 +32,8 @@ module.exports.acceptFriend = (req, res) => {
 };
 module.exports.removeRequest = (req, res) => {
   const requestId = req.params.id;
-  const { userId } = req.signedCookies;
-  db.execute("DELETE FROM tbl_friends WHERE id = ? AND friendID = ? ", [
-    userId,
-    requestId,
-  ])
+
+  db.execute("DELETE FROM tbl_friends WHERE requestID = ?", [requestId])
     .then((data) => {
       console.log(data);
       res.status(200).json({
