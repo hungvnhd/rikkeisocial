@@ -1,4 +1,5 @@
 const db = require("../models/db");
+const mysql = require("mysql2");
 
 module.exports.getAll = (req, res) => {
   db.execute("SELECT * FROM tbl_users").then((data) => {
@@ -92,12 +93,12 @@ module.exports.createPost = (req, res) => {
 module.exports.sendReaction = (req, res) => {
   const postID = req.params.id;
   const { reactionType, reactionOf } = req.body;
-  console.log(postID, reactionType, reactionOf);
+  // console.log(postID, reactionType, reactionOf);
   db.execute(
     "SELECT * FROM tbl_postreactions WHERE postID=? AND reactionOf=? ",
     [postID, reactionOf]
   ).then((data) => {
-    console.log(data[0]);
+    // console.log(data[0]);
     if (data[0].length === 0) {
       db.execute("INSERT INTO tbl_postreactions VALUE(?,?,?,?)", [
         null,
@@ -105,25 +106,84 @@ module.exports.sendReaction = (req, res) => {
         reactionType,
         reactionOf,
       ]).then((data) => {
-        res.status(200).json({
-          message: "sent reaction succesfully",
-        });
+        db.execute("SELECT * FROM tbl_posts WHERE postId = ?", [postID]).then(
+          (data) => {
+            console.log(data[0][0][reactionType]);
+            let newReaction = data[0][0][reactionType] + 1;
+
+            db.execute(
+              `UPDATE tbl_posts SET ${reactionType} = ? WHERE postId=?`,
+              [newReaction, postID]
+            ).then((data) => {
+              res.status(200).json({
+                message: "sent reaction succesfully",
+              });
+            });
+          }
+        );
+        // res.status(200).json({
+        //   message: "sent reaction succesfully",
+        // });
       });
     } else {
-      db.execute(
-        "UPDATE tbl_postreactions SET reactionType = ? WHERE postID =? AND reactionOf=?  ",
-        [reactionType, postID, reactionOf]
-      ).then((data) => {
-        res.status(200).json({
-          message: "update reaction successfully",
-        });
-      });
+      db.execute("SELECT * FROM tbl_posts WHERE postId = ?", [postID]).then(
+        (data) => {
+          let newArr = ["like", "clap", "love", "haha", "dislike"];
+          let result = newArr.indexOf(reactionType);
+
+          newArr.splice(result, 1);
+          // console.log(newArr);
+          // console.log(data[0][0][newArr[0]]);
+
+          // console.log(
+          //   data[0][0][reactionType] + 1,
+          //   data[0][0][newArr[0]] - 1,
+          //   data[0][0][newArr[1]] - 1,
+          //   data[0][0][newArr[2]] - 1,
+          //   data[0][0][newArr[3]] - 1,
+          //   Number(postID)
+          // );
+
+          let query = `UPDATE tbl_posts SET ${reactionType} = ?, ${newArr[0]} = ?, ${newArr[1]} = ?, ${newArr[2]} = ?, ${newArr[3]} = ? WHERE postId = ?`;
+          let sql = `UPDATE tbl_posts SET ?? = ?, ?? = ?, ?? = ?, ?? = ?, ?? = ? WHERE ?? = ?`;
+          let inserts = [
+            reactionType,
+            data[0][0][reactionType] + 1,
+            newArr[0],
+            data[0][0][newArr[0]] - 1,
+            newArr[1],
+            data[0][0][newArr[1]] - 1,
+            newArr[2],
+            data[0][0][newArr[2]] - 1,
+            newArr[3],
+            data[0][0][newArr[3]] - 1,
+            "postId",
+            Number(postID),
+          ];
+          sql = mysql.format(sql, inserts);
+          console.log(sql);
+          db.execute(sql)
+            .then((data) => {
+              db.execute(
+                "UPDATE tbl_postreactions SET reactionType = ? WHERE postID = ? AND reactionOf= ?  ",
+                [reactionType, postID, reactionOf]
+              ).then((data) => {
+                res.status(200).json({
+                  message: "update reaction successfully",
+                });
+              });
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      );
     }
   });
 };
 module.exports.deleteReaction = (req, res) => {
   const postID = req.params.id;
-  console.log(postID);
+
   db.execute("DELETE FROM tbl_postreactions WHERE postID=?", [postID]).then(
     (data) => {
       res.status(200).json({
