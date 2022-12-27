@@ -7,7 +7,8 @@ router.get("/v1/users/:id", apiController.getById);
 router.get("/v1/posts/:id", apiController.getPostById);
 router.get("/v1/friends", apiController.getAllRequest);
 router.get("/v1/friends/:id", apiController.getSignedInUserRequest);
-
 router.post("/v1/posts", apiController.createPost);
+router.post("/v1/posts/sendReaction/:id", apiController.sendReaction);
+router.delete("/v1/posts/deleteReaction/:id", apiController.deleteReaction);
 
 module.exports = router;
