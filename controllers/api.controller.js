@@ -1,5 +1,6 @@
 const db = require("../models/db");
 const mysql = require("mysql2");
+const e = require("express");
 
 module.exports.getAll = (req, res) => {
   db.execute("SELECT * FROM tbl_users").then((data) => {
@@ -20,52 +21,166 @@ module.exports.getPostById = (req, res) => {
     db.execute("SELECT * FROM tbl_posts")
       .then((data) => {
         let [postsData] = data;
-
+        // console.log(postsData);
         db.execute("SELECT * FROM tbl_postreactions").then((data) => {
           let [postReactions] = data;
-          // console.log(postsData);
+          db.execute("SELECT * FROM tbl_comments").then((data) => {
+            let [postComments] = data;
+            db.execute("SELECT * FROM tbl_users ").then((data) => {
+              let [users] = data;
+              let filterFriends = friends.filter((e) => {
+                return (
+                  (Number(e.friendID) === Number(id) && e.added === "true") ||
+                  (Number(e.id) === Number(id) && e.added === "true")
+                );
+              });
+              // console.log(filterFriends);
+              let postsDataResult = postsData.reduce((pre, curr) => {
+                if (curr.postOf === Number(id)) {
+                  pre.push(curr);
+                }
+                filterFriends.forEach((e) => {
+                  if (
+                    Number(e.friendID) == Number(curr.postOf) ||
+                    Number(e.id) === Number(curr.postOf)
+                  ) {
+                    pre.push(curr);
+                  }
+                });
 
-          // console.log(friends);
-          let filterFriends = friends.filter((e) => {
-            return (
-              (Number(e.friendID) === Number(id) && e.added === "true") ||
-              (Number(e.id) === Number(id) && e.added === "true")
-            );
-          });
-          // console.log(filterFriends);
-          let postsDataResult = postsData.reduce((pre, curr) => {
-            filterFriends.forEach((e) => {
-              if (
-                Number(e.friendID) == Number(curr.postOf) ||
-                Number(e.id) === Number(curr.postOf)
-              ) {
+                return pre;
+              }, []);
+              postsDataResult = Array.from(new Set(postsDataResult));
+              console.log(postsDataResult);
+              let postReactionsFilter = postReactions.filter((e) => {
+                return e.reactionOf === Number(id);
+              });
+              // console.log(postsDataResult);
+
+              let userPostDataResult = postsDataResult.reduce((pre, curr) => {
+                postReactionsFilter.forEach((e) => {
+                  if (e.postID === curr.postId) {
+                    curr.defaultReaction = e.reactionType;
+                  }
+                });
+
+                curr.totalReactions =
+                  curr.like + curr.clap + curr.love + curr.haha + curr.dislike;
+                let totalComments = [];
+                postComments.forEach((e) => {
+                  if (e.postID === curr.postId) {
+                    totalComments.push(e);
+                  }
+                });
+                let totalReactionsArr = [
+                  {
+                    total: curr.like,
+                    type: "fa-solid fa-thumbs-up",
+                    color: "#408EE5",
+                  },
+                  {
+                    total: curr.clap,
+                    type: "fa-solid fa-hands-clapping",
+                    color: "#73AD57",
+                  },
+                  {
+                    total: curr.love,
+                    type: "fa-solid fa-heart",
+                    color: "#F7251C",
+                  },
+                  {
+                    total: curr.haha,
+                    type: "fa-solid fa-face-laugh-squint",
+                    color: "#F8C035",
+                  },
+                  {
+                    total: curr.dislike,
+                    type: "fa-solid fa-thumbs-down",
+                    color: "#980202",
+                  },
+                ];
+                let first, second, third;
+
+                third = first = second = 0;
+                for (let i = 0; i < totalReactionsArr.length; i++) {
+                  if (totalReactionsArr[i].total > first) {
+                    third = second;
+                    second = first;
+                    first = totalReactionsArr[i].total;
+                  } else if (totalReactionsArr[i].total > second) {
+                    third = second;
+                    second = totalReactionsArr[i].total;
+                  } else if (totalReactionsArr[i].total > third)
+                    third = totalReactionsArr[i].total;
+                }
+
+                let mostReactions = [first, second, third];
+                let newArr = [];
+                for (let i = 0; i < totalReactionsArr.length; i++) {
+                  for (let j = 0; j < mostReactions.length; j++) {
+                    if (totalReactionsArr[i].total === mostReactions[j]) {
+                      newArr.push(totalReactionsArr[i]);
+                    }
+                  }
+                }
+                newArr = Array.from(new Set(newArr));
+
+                function compareValues(key, order = "asc") {
+                  return function (a, b) {
+                    if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+                      // nếu không tồn tại
+                      return 0;
+                    }
+
+                    const varA =
+                      typeof a[key] === "string"
+                        ? a[key].toUpperCase()
+                        : a[key];
+                    const varB =
+                      typeof b[key] === "string"
+                        ? b[key].toUpperCase()
+                        : b[key];
+
+                    let comparison = 0;
+                    if (varA > varB) {
+                      comparison = 1;
+                    } else if (varA < varB) {
+                      comparison = -1;
+                    }
+                    return order == "desc" ? comparison * -1 : comparison;
+                  };
+                }
+                newArr = newArr.sort(compareValues("total", "desc"));
+                newArr.splice(2, 2);
+
+                curr.totalComments = totalComments.length;
+                curr.top3reactions = newArr;
+
                 pre.push(curr);
-              }
+
+                return pre;
+              }, []);
+              // console.log(userPostDataResult);
+              let finalResult = userPostDataResult.reduce((pre, curr) => {
+                users.forEach((e) => {
+                  if (e.id === curr.postOf) {
+                    curr.userData = {
+                      fullName: e.fullName,
+                      job: e.jobs,
+                      company: e.company,
+                      avatar: e.avatar,
+                    };
+                  }
+                });
+                pre.push(curr);
+                return pre;
+              }, []);
+              console.log(finalResult);
+
+              res.status(200).json({
+                posts: userPostDataResult,
+              });
             });
-
-            return pre;
-          }, []);
-          postsDataResult = Array.from(new Set(postsDataResult));
-
-          // console.log(postsDataResult);
-          // console.log(postReactions);
-          let postReactionsFilter = postReactions.filter((e) => {
-            return e.reactionOf === Number(id);
-          });
-
-          let userPostDataResult = postsDataResult.reduce((pre, curr) => {
-            postReactionsFilter.forEach((e) => {
-              if (e.postID === curr.postId) {
-                curr.defaultReaction = e.reactionType;
-              }
-            });
-            pre.push(curr);
-            return pre;
-          }, []);
-          // console.log(userPostDataResult);
-
-          res.status(200).json({
-            posts: userPostDataResult,
           });
         });
       })
@@ -74,7 +189,7 @@ module.exports.getPostById = (req, res) => {
 };
 module.exports.createPost = (req, res) => {
   let { userId, content, postImg } = req.body;
-  db.execute("INSERT INTO tbl_posts VALUES(?,?,?,?,?,?,?,?,?)", [
+  db.execute("INSERT INTO tbl_posts VALUES(?,?,?,?,?,?,?,?,?,?)", [
     null,
     userId,
     content,
@@ -84,6 +199,7 @@ module.exports.createPost = (req, res) => {
     0,
     0,
     postImg,
+    new Date(),
   ])
     .then((data) => {
       res.status(200).json({ message: "Posted successfully" });
@@ -108,60 +224,43 @@ module.exports.sendReaction = (req, res) => {
       ]).then((data) => {
         db.execute("SELECT * FROM tbl_posts WHERE postId = ?", [postID]).then(
           (data) => {
-            console.log(data[0][0][reactionType]);
+            // console.log(data[0][0][reactionType]);
             let newReaction = data[0][0][reactionType] + 1;
 
-            db.execute(
-              `UPDATE tbl_posts SET ${reactionType} = ? WHERE postId=?`,
-              [newReaction, postID]
-            ).then((data) => {
+            let query = `UPDATE tbl_posts SET ${reactionType} = ? WHERE postId = ?`;
+            let sql = `UPDATE tbl_posts SET ?? = ? WHERE ?? = ?`;
+            let inserts = [reactionType, newReaction, "postId", Number(postID)];
+            sql = mysql.format(sql, inserts);
+            db.execute(sql).then((data) => {
               res.status(200).json({
                 message: "sent reaction succesfully",
               });
             });
           }
         );
-        // res.status(200).json({
-        //   message: "sent reaction succesfully",
-        // });
       });
     } else {
+      const previousReaction = data[0][0].reactionType;
       db.execute("SELECT * FROM tbl_posts WHERE postId = ?", [postID]).then(
         (data) => {
           let newArr = ["like", "clap", "love", "haha", "dislike"];
           let result = newArr.indexOf(reactionType);
 
           newArr.splice(result, 1);
-          // console.log(newArr);
-          // console.log(data[0][0][newArr[0]]);
-
-          // console.log(
-          //   data[0][0][reactionType] + 1,
-          //   data[0][0][newArr[0]] - 1,
-          //   data[0][0][newArr[1]] - 1,
-          //   data[0][0][newArr[2]] - 1,
-          //   data[0][0][newArr[3]] - 1,
-          //   Number(postID)
-          // );
 
           let query = `UPDATE tbl_posts SET ${reactionType} = ?, ${newArr[0]} = ?, ${newArr[1]} = ?, ${newArr[2]} = ?, ${newArr[3]} = ? WHERE postId = ?`;
-          let sql = `UPDATE tbl_posts SET ?? = ?, ?? = ?, ?? = ?, ?? = ?, ?? = ? WHERE ?? = ?`;
+          let sql = `UPDATE tbl_posts SET ?? = ?, ?? = ? WHERE ?? = ?`;
           let inserts = [
             reactionType,
             data[0][0][reactionType] + 1,
-            newArr[0],
-            data[0][0][newArr[0]] - 1,
-            newArr[1],
-            data[0][0][newArr[1]] - 1,
-            newArr[2],
-            data[0][0][newArr[2]] - 1,
-            newArr[3],
-            data[0][0][newArr[3]] - 1,
+            previousReaction,
+            data[0][0][previousReaction] - 1,
+
             "postId",
             Number(postID),
           ];
           sql = mysql.format(sql, inserts);
-          console.log(sql);
+
           db.execute(sql)
             .then((data) => {
               db.execute(
@@ -183,12 +282,28 @@ module.exports.sendReaction = (req, res) => {
 };
 module.exports.deleteReaction = (req, res) => {
   const postID = req.params.id;
-
+  const previousReaction = req.body.previousReaction;
   db.execute("DELETE FROM tbl_postreactions WHERE postID=?", [postID]).then(
     (data) => {
-      res.status(200).json({
-        message: "remove reaction successfully",
-      });
+      db.execute("SELECT * FROM tbl_posts WHERE postId=?", [postID]).then(
+        (data) => {
+          const newReactionValue = data[0][0][previousReaction] - 1;
+          // let query = `UPDATE tbl_posts SET ${reactionType} = ? WHERE postId = ?`;
+          let sql = `UPDATE tbl_posts SET ?? = ? WHERE ?? = ?`;
+          let inserts = [
+            previousReaction,
+            newReactionValue,
+            "postId",
+            Number(postID),
+          ];
+          sql = mysql.format(sql, inserts);
+          db.execute(sql).then((data) => {
+            res.status(200).json({
+              message: "remove reaction successfully",
+            });
+          });
+        }
+      );
     }
   );
 };
@@ -231,5 +346,55 @@ module.exports.getSignedInUserRequest = (req, res) => {
       );
     })
 
+    .catch((err) => console.log(err));
+};
+
+//comment
+module.exports.getCommentById = (req, res) => {
+  const postID = req.params.id;
+  db.execute("SELECT * FROM tbl_comments WHERE postID=?", [postID])
+    .then((comments) => {
+      const [dataComments] = comments;
+      db.execute("SELECT * FROM tbl_users").then((users) => {
+        const [dataUsers] = users;
+
+        const result = dataComments.reduce((pre, curr) => {
+          dataUsers.forEach((e) => {
+            if (e.id === curr.commentOf) {
+              curr.userName = e.fullName;
+              curr.userAva = e.avatar;
+              curr.userJob = e.jobs;
+              curr.userCompany = e.company;
+            }
+          });
+          pre.push(curr);
+          return pre;
+        }, []);
+        // console.log(result);
+
+        res.status(200).json({
+          data: result,
+        });
+      });
+    })
+    .catch((err) => console.log(err));
+};
+module.exports.addComment = (req, res) => {
+  const { postID, content, commentOf } = req.body;
+  // console.log(req.body);
+
+  db.execute("INSERT INTO tbl_comments VALUE(?, ?, ?, ?, ?, ?)", [
+    null,
+    content,
+    postID,
+    commentOf,
+    0,
+    new Date(),
+  ])
+    .then((data) => {
+      res.status(200).json({
+        message: "comment posted successfully",
+      });
+    })
     .catch((err) => console.log(err));
 };
