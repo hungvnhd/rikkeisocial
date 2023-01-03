@@ -3,7 +3,7 @@ module.exports.addingFriend = (req, res) => {
   //   console.log(req.params);
   const friendsId = req.params.id;
   //   console.log(friendsId);
-  const { userId } = req.signedCookies;
+  const { userId } = req.body;
   db.execute("INSERT INTO tbl_friends VALUES(?, ?, ?,?)", [
     null,
     friendsId,

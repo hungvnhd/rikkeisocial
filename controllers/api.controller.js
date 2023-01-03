@@ -398,3 +398,58 @@ module.exports.addComment = (req, res) => {
     })
     .catch((err) => console.log(err));
 };
+
+module.exports.loadMessage = (req, res) => {
+  const userID = req.params.id;
+  db.execute("SELECT * FROM tbl_users").then((data) => {
+    const [users] = data;
+    db.execute("SELECT * FROM tbl_messageroom").then((data) => {
+      const [rooms] = data;
+
+      // console.log(rooms);
+      const loggedInUserRooms = rooms.filter((e) => {
+        // console.log(e.createdBy);
+        return (
+          e.createdBy === Number(userID) || e.invitedUser === Number(userID)
+        );
+      });
+
+      db.execute("SELECT * FROM tbl_messages").then((data) => {
+        const [messages] = data;
+        // console.log(messages);
+        const result = loggedInUserRooms.reduce((pre, curr) => {
+          users.forEach((e) => {
+            if (e.id === curr.createdBy && curr.createdBy !== Number(userID)) {
+              curr.user = {
+                userName: e.fullName,
+                userAva: e.avatar,
+              };
+            } else if (
+              e.id === curr.invitedUser &&
+              curr.invitedUser !== Number(userID)
+            ) {
+              curr.user = {
+                userName: e.fullName,
+                userAva: e.avatar,
+              };
+            }
+          });
+          messages.forEach((e) => {
+            let arr = [];
+            if (e.fromRoom === curr.roomID) {
+              arr.push(e);
+              curr.message = arr;
+            }
+          });
+          pre.push(curr);
+          return pre;
+        }, []);
+        console.log(result);
+
+        res.status(200).json({
+          data: result,
+        });
+      });
+    });
+  });
+};
