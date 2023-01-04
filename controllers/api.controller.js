@@ -357,23 +357,44 @@ module.exports.getCommentById = (req, res) => {
       const [dataComments] = comments;
       db.execute("SELECT * FROM tbl_users").then((users) => {
         const [dataUsers] = users;
+        db.execute("SELECT * FROM tbl_replycomment").then((data) => {
+          const [replycmt] = data;
+          const result = dataComments.reduce((pre, curr) => {
+            dataUsers.forEach((e) => {
+              if (e.id === curr.commentOf) {
+                curr.userName = e.fullName;
+                curr.userAva = e.avatar;
+                curr.userJob = e.jobs;
+                curr.userCompany = e.company;
+              }
+            });
+            const arr = [];
 
-        const result = dataComments.reduce((pre, curr) => {
-          dataUsers.forEach((e) => {
-            if (e.id === curr.commentOf) {
-              curr.userName = e.fullName;
-              curr.userAva = e.avatar;
-              curr.userJob = e.jobs;
-              curr.userCompany = e.company;
-            }
+            const replycmtresult = replycmt.reduce((pre1, curr1) => {
+              dataUsers.forEach((e) => {
+                if (e.id === curr1.replyOf) {
+                  curr1.replyUsername = e.fullName;
+                  curr1.replyUserAva = e.avatar;
+                }
+              });
+              pre1.push(curr1);
+              return pre1;
+            }, []);
+            // console.log(replycmtresult);
+            replycmtresult.forEach((e) => {
+              if (e.commentID === curr.commentID) {
+                arr.push(e);
+                curr.reply = arr;
+              }
+            });
+            pre.push(curr);
+            return pre;
+          }, []);
+          console.log(result);
+
+          res.status(200).json({
+            data: result,
           });
-          pre.push(curr);
-          return pre;
-        }, []);
-        // console.log(result);
-
-        res.status(200).json({
-          data: result,
         });
       });
     })
@@ -397,4 +418,106 @@ module.exports.addComment = (req, res) => {
       });
     })
     .catch((err) => console.log(err));
+};
+
+module.exports.loadMessage = (req, res) => {
+  const userID = req.params.id;
+  db.execute("SELECT * FROM tbl_users").then((data) => {
+    const [users] = data;
+    db.execute("SELECT * FROM tbl_messageroom").then((data) => {
+      const [rooms] = data;
+
+      // console.log(rooms);
+      const loggedInUserRooms = rooms.filter((e) => {
+        // console.log(e.createdBy);
+        return (
+          e.createdBy === Number(userID) || e.invitedUser === Number(userID)
+        );
+      });
+
+      db.execute("SELECT * FROM tbl_messages").then((data) => {
+        const [messages] = data;
+        // console.log(messages);
+        const result = loggedInUserRooms.reduce((pre, curr) => {
+          users.forEach((e) => {
+            if (e.id === curr.createdBy && curr.createdBy !== Number(userID)) {
+              curr.user = {
+                userName: e.fullName,
+                userAva: e.avatar,
+              };
+            } else if (
+              e.id === curr.invitedUser &&
+              curr.invitedUser !== Number(userID)
+            ) {
+              curr.user = {
+                userName: e.fullName,
+                userAva: e.avatar,
+              };
+            }
+          });
+          messages.forEach((e) => {
+            let arr = [];
+            if (e.fromRoom === curr.roomID) {
+              arr.push(e);
+              curr.message = arr;
+            }
+          });
+          pre.push(curr);
+          return pre;
+        }, []);
+        // console.log(result);
+
+        res.status(200).json({
+          data: result,
+        });
+      });
+    });
+  });
+};
+
+module.exports.getMessagesByRoomID = (req, res) => {
+  const roomID = req.params.id;
+  db.execute("SELECT * FROM tbl_users ").then((data) => {
+    const [users] = data;
+    db.execute("SELECT * FROM tbl_messages WHERE fromRoom = ?", [roomID]).then(
+      (data) => {
+        const [messages] = data;
+        const result = messages.reduce((pre, curr) => {
+          users.forEach((e) => {
+            if (e.id === curr.messageOf) {
+              curr.userDetail = {
+                userName: e.fullName,
+                userAva: e.avatar,
+              };
+            }
+          });
+          pre.push(curr);
+          return pre;
+        }, []);
+        res.status(200).json({
+          data: result,
+        });
+      }
+    );
+  });
+};
+
+module.exports.sendMessage = (req, res) => {
+  const roomID = req.params.id;
+  const { messageOf, messageContent } = req.body;
+  db.execute("INSERT INTO tbl_messages VALUE(?,?,?,?,?)", [
+    null,
+    messageOf,
+    messageContent,
+    new Date(),
+    roomID,
+  ])
+    .then((data) => {
+      res.status(200).json({
+        message: "send message successfully",
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
