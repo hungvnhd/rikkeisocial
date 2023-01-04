@@ -37,6 +37,7 @@ function Feed() {
                 className='background-image'
                 alt=''
               />
+
               <img src={userData[0].avatar} className='feed-ava' alt='' />
             </div>
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
+import { addDocument, generateKeywords } from "../components/firebase/services";
 
 import logo from "../logo121.png";
-
 
 export default function SignUp() {
   const [email, setEmail] = useState([]);
@@ -42,15 +42,27 @@ export default function SignUp() {
       setNoLastName("");
       setLocation("Please enter your location.");
     } else {
+      const id = Math.floor(Math.random() * 1000000);
       const data = {
+        id: id,
         email: email,
         password: password,
-        fullName: firstName + lastName,
+        fullName: firstName + " " + lastName,
         job: job,
         company: company,
         location: location,
       };
-
+      const user = {
+        displayName: firstName + " " + lastName,
+        email: email,
+        photoURL:
+          "https://scr.vn/wp-content/uploads/2020/07/Avatar-Facebook-tr%E1%BA%AFng.jpg",
+        uid: id,
+        providerId: "",
+        keywords: generateKeywords((firstName + lastName).toLowerCase()),
+        friends: [],
+      };
+      addDocument("users", user);
       fetch("http://127.0.0.1:8000/auth/register", {
         method: "POST", // or 'PUT'
         headers: {

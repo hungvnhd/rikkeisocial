@@ -18,14 +18,13 @@ import Cookies from "js-cookie";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAbdh6w97UsnL46_HQlUpWKTbU7IhBrP3o",
-  authDomain: "rikkeisocial.firebaseapp.com",
-  databaseURL:
-    "https://rikkeisocial-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "rikkeisocial",
-  storageBucket: "rikkeisocial.appspot.com",
-  messagingSenderId: "423182667385",
-  appId: "1:423182667385:web:c5f2477bead6ac8caecea8",
+  apiKey: "AIzaSyAG5NaMDy52e7f-_w-VdXc-XoqV2ZYZr0Y",
+  authDomain: "rikkeichat-94b17.firebaseapp.com",
+  projectId: "rikkeichat-94b17",
+  storageBucket: "rikkeichat-94b17.appspot.com",
+  messagingSenderId: "629791864097",
+  appId: "1:629791864097:web:3b6b70e7db097a5bb47a60",
+  measurementId: "G-66TBPVXQ9Q",
 };
 
 // Initialize Firebase

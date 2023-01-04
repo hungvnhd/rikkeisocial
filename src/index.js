@@ -5,15 +5,20 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter as Router } from "react-router-dom";
 import { CookiesProvider } from "react-cookie";
+import AuthProvider from "./Context/AuthProvider";
+import AppProvider from "./Context/AppProvider";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Router>
-      <CookiesProvider>
-        <App />
-      </CookiesProvider>
-     
+      <AuthProvider>
+        <AppProvider>
+          <CookiesProvider>
+            <App />
+          </CookiesProvider>
+        </AppProvider>
+      </AuthProvider>
     </Router>
   </React.StrictMode>
 );

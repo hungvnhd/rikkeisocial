@@ -11,6 +11,9 @@ import Notifications from "./components/Notifications";
 import Cookies from "js-cookie";
 import PrivateRoutes from "./utils/PrivateRoutes";
 import PreventAuth from "./utils/PreventAuth";
+import Messages from "./components/Messages";
+import AddRoomModal from "./components/Modals/AddRoomModal";
+import InviteMemberModal from "./components/Modals/InviteMemberModal";
 
 // import SignIn from './components/Sign
 
@@ -54,13 +57,30 @@ function App() {
               </>
             }
           />
-          <Route path='/messaging' />
-          <Route path='/notifications' element={<>
+          <Route
+            path='/messaging'
+            element={
+              <>
+                <NavigateBar />
+                <div className='container-page'>
+                  <Messages />
+                  <AddRoomModal />
+                  <InviteMemberModal />
+                </div>
+              </>
+            }
+          />
+          <Route
+            path='/notifications'
+            element={
+              <>
                 <NavigateBar />
                 <div className='container-page'>
                   <Notifications />
                 </div>
-              </>}/>
+              </>
+            }
+          />
         </Route>
         <Route element={<PreventAuth />}>
           <Route path='/auth/register' element={<SignUp />} />
