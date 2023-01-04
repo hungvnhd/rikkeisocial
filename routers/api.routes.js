@@ -14,4 +14,6 @@ router.delete("/v1/posts/deleteReaction/:id", apiController.deleteReaction);
 router.get("/v1/comments/:id", apiController.getCommentById);
 router.post("/v1/comments/addComment", apiController.addComment);
 router.get("/v1/messages/:id", apiController.loadMessage);
+router.get("/v1/messages/room/:id", apiController.getMessagesByRoomID);
+router.post("/v1/messages/send/:id", apiController.sendMessage);
 module.exports = router;
