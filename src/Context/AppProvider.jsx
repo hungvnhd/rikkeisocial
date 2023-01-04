@@ -10,11 +10,14 @@ export default function AppProvider({ children }) {
   const [isInviteMemberVisible, setIsInviteMemberVisible] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState("");
   const [selectedFriendId, setSelectedFriendId] = useState("");
+
   // const [room, setRoom] = useState({});
 
   const {
-    user: { uid },
+    user: { email, uid },
   } = React.useContext(AuthContext);
+
+  console.log(uid);
 
   const friendsComdition = React.useMemo(() => {
     return {
@@ -26,7 +29,7 @@ export default function AppProvider({ children }) {
 
   const friends = useFirestore("users", friendsComdition);
 
-  const friend = friends.find((e) => e.uid === Number(selectedFriendId));
+  const friend = friends.find((e) => e.uid === selectedFriendId);
 
   const roomsCondition = React.useMemo(() => {
     return {
@@ -35,6 +38,7 @@ export default function AppProvider({ children }) {
       compareValue: uid,
     };
   }, [uid]);
+
   const rooms = useFirestore("rooms", roomsCondition);
 
   const roomsnhom = rooms.filter((e) => {
@@ -113,6 +117,7 @@ export default function AppProvider({ children }) {
         friendRoom,
         selectedRoom,
         isAddRoomVisible,
+
         setIsAddRoomVisible,
         selectedFriendId,
         setSelectedFriendId,

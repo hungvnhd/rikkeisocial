@@ -5,9 +5,14 @@ import Cookies from "js-cookie";
 import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
 import AlertTitle from "@mui/material/AlertTitle";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../components/firebase/config";
+import { addDocument, generateKeywords } from "../components/firebase/services";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -75,18 +80,17 @@ function Login() {
                     .then((userCredential) => {
                       // Signed in
                       const user = userCredential.user;
-                      console.log(user);
+
                       // const washingtonRef = doc(
                       //   db,
                       //   "users",
-                      //   "NsLQs4MFVT91PItUzWjM"
+                      //   ""
                       // );
                       // await updateDoc(washingtonRef, {
                       //   uid: user.uid,
                       // });
                       setCookie("userID", data.userID, { path: "/" });
                       window.location.href = "http://localhost:3000/feed";
-                      // ...
                     })
                     .catch((error) => {
                       const errorCode = error.code;

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { db } from "../components/firebase/config";
 import { addDocument, generateKeywords } from "../components/firebase/services";
+import { AppContext } from "../Context/AppProvider";
 
 import logo from "../logo121.png";
 
@@ -63,6 +65,11 @@ export default function SignUp() {
         friends: [],
       };
       addDocument("users", user);
+      // const addUser = db.collection("users").doc(id.toString());
+      // addUser.set({
+      //   ...user,
+      // });
+
       fetch("http://127.0.0.1:8000/auth/register", {
         method: "POST", // or 'PUT'
         headers: {

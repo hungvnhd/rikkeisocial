@@ -110,7 +110,7 @@ export default function InviteMemberModal() {
   return (
     <div>
       <Modal
-        title='Mời thêm thành viên'
+        title='add new member'
         open={isInviteMemberVisible}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -120,9 +120,9 @@ export default function InviteMemberModal() {
           <DebounceSelect
             mode='multiple'
             name='search-user'
-            label='Tên các thành viên'
+            label='members names'
             value={value}
-            placeholder='Nhập tên thành viên'
+            placeholder='Member name'
             fetchOptions={fetchUserList}
             onChange={(newValue) => setValue(newValue)}
             style={{ width: "100%" }}

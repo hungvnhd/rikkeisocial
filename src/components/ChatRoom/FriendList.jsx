@@ -54,12 +54,14 @@ export default function RoomList() {
     // if (chatFriendRoom1) {
     //   console.log(123);
     // } else {
+
     // addDocument("rooms", {
     //   members: [uid, friendId],
     //   name: friend.displayName,
     //   coderoom: [uid + friendId, friendId + uid],
     //   description: "",
     // });
+
     // }
   };
 
