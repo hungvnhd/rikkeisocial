@@ -17,6 +17,7 @@ import Tcncontainer from "./components/tcn/Tcncontainer";
 import React, { useState, useEffect } from "react";
 import Network from "./components/network/Network";
 import Cookie from "js-cookie";
+import Message from "./components/message/Message";
 
 const App = () => {
   const [users, setUsers] = useState([]);
@@ -131,19 +132,23 @@ const App = () => {
               </>
             }
           />
-          <Route path='/mynetwork' element={
+          <Route
+            path='/mynetwork'
+            element={
               <>
                 <NavigateBar />
                 <div className='container-page'>
-                <Network
-                  btnAccept={btnAccept}
-                  btnremove={btnremove}
-                  users={users}
-                  friendadd={friendadd}
-                  btnAdding={btnAdding}/>
+                  <Network
+                    btnAccept={btnAccept}
+                    btnremove={btnremove}
+                    users={users}
+                    friendadd={friendadd}
+                    btnAdding={btnAdding}
+                  />
                 </div>
               </>
-            } />
+            }
+          />
           <Route
             path='/jobs'
             element={
@@ -155,24 +160,43 @@ const App = () => {
               </>
             }
           />
-          <Route path='/user/:id' element={
-        <><NavigateBar />
-        <div className='container-page'>
-          <Tcncontainer/>
-        </div></>} />
-          <Route path='/messaging' />
-          <Route path='/notifications' element={<>
+          <Route
+            path='/user/:id'
+            element={
+              <>
+                <NavigateBar />
+                <div className='container-page'>
+                  <Tcncontainer />
+                </div>
+              </>
+            }
+          />
+          <Route
+            path='/messaging/:id'
+            element={
+              <>
+                <NavigateBar />
+                <div className='container-page'></div>
+                <Message />
+              </>
+            }
+          />
+          <Route
+            path='/notifications'
+            element={
+              <>
                 <NavigateBar />
                 <div className='container-page'>
                   <Notifications />
                 </div>
-              </>}/>
+              </>
+            }
+          />
         </Route>
         <Route element={<PreventAuth />}>
           <Route path='/auth/register' element={<SignUp />} />
           <Route path='/auth/login' element={<Login />} />
         </Route>
-        
       </Routes>
 
       {/* <div className='container-page'>
@@ -184,7 +208,7 @@ const App = () => {
           <Route path='/notifications' />
         </Routes>
       </div> */}
-      
+
       {/* <Tcncontainer /> */}
     </>
   );
