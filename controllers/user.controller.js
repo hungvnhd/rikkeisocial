@@ -7,7 +7,7 @@ module.exports.addingFriend = (req, res) => {
   db.execute("INSERT INTO tbl_friends VALUES(?, ?, ?,?)", [
     null,
     friendsId,
-    false,
+    "false",
     userId,
   ])
     .then((data) => {
@@ -20,7 +20,7 @@ module.exports.acceptFriend = (req, res) => {
   const requestId = req.params.id;
   console.log(requestId);
   db.execute("UPDATE tbl_friends SET added = ? WHERE requestID=?", [
-    true,
+    "true",
     requestId,
   ])
     .then((data) => {

@@ -419,6 +419,20 @@ module.exports.addComment = (req, res) => {
     })
     .catch((err) => console.log(err));
 };
+module.exports.addReply = (req, res) => {
+  const { replyOf, content, commentID } = req.body;
+
+  db.execute("INSERT INTO tbl_replycomment VALUES(?,?,?,?)", [
+    null,
+    commentID,
+    replyOf,
+    content,
+  ]).then((data) => {
+    res.status(200).json({ message: "sent reply successfully" });
+  }).catch((err)=> {
+    console.log(err);
+  } );
+};
 
 module.exports.loadMessage = (req, res) => {
   const userID = req.params.id;
@@ -473,6 +487,52 @@ module.exports.loadMessage = (req, res) => {
       });
     });
   });
+};
+
+module.exports.getAllRequest1 = (req, res) => {
+  let friendID = req.params.id;
+  let userID = req.body.userId;
+  db.execute(`SELECT * FROM tbl_friends`)
+    .then((data) => {
+      data[0].forEach((value, index) => {
+        console.log(value.friendID, userID, value.id, value.added, friendID);
+
+        if (
+          value.id == userID &&
+          value.friendID == friendID &&
+          value.added == "false"
+        ) {
+          res.status(200).json({
+            added: "Cancel",
+          });
+        } else if (
+          value.id == userID &&
+          value.friendID == friendID &&
+          value.added == "true"
+        ) {
+          res.status(200).json({
+            added: "Friend",
+          });
+        } else if (
+          value.id == friendID &&
+          value.friendID == userID &&
+          value.added == "false"
+        ) {
+          res.status(200).json({
+            added: "accept",
+          });
+        } else if (
+          value.id == friendID &&
+          value.friendID == userID &&
+          value.added == "true"
+        ) {
+          res.status(200).json({
+            added: "friend",
+          });
+        }
+      });
+    })
+    .catch((err) => console.log(err));
 };
 
 module.exports.getMessagesByRoomID = (req, res) => {
