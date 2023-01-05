@@ -1,5 +1,8 @@
+const { getByDisplayValue } = require("@testing-library/react");
+const { updateProfile } = require("firebase/auth");
 const firebaseAuth = require("firebase/auth");
 const db = require("../models/db");
+// const { addDocument } = require("../models/services");
 const {
   getAuth,
   createUserWithEmailAndPassword,
@@ -8,10 +11,9 @@ const {
 } = firebaseAuth;
 
 module.exports.signUpNewUser = (req, res) => {
-  const { email, password, firstName, lastName, job, company, location } =
-    req.body;
-  const fullName = `${firstName} ${lastName}`;
-  console.log(email, password, fullName, job, company, location);
+  const { email, password, fullName, job, company, location, id } = req.body;
+
+  console.log(id, email, password, fullName, job, company, location);
 
   db.execute("SELECT * FROM tbl_users WHERE email = ?", [email]).then(
     (data) => {
@@ -24,10 +26,20 @@ module.exports.signUpNewUser = (req, res) => {
         createUserWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
             const user = userCredential.user;
-            console.log(user);
+
+            updateProfile(auth.currentUser, {
+              displayName: fullName,
+              photoURL:
+                "https://scr.vn/wp-content/uploads/2020/07/Avatar-Facebook-tr%E1%BA%AFng.jpg",
+            })
+              .then(() => {
+                console.log("ok");
+              })
+              .catch((err) => {
+                console.log(err);
+              });
             sendEmailVerification(auth.currentUser).then(() => {
               console.log("email sent");
-              let id = Math.floor(Math.random() * 1000000);
 
               db.execute(
                 "INSERT INTO tbl_users VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
