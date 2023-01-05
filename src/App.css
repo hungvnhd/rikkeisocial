@@ -671,6 +671,45 @@ label.label input[type="file"] {
   -webkit-transform: scale(1.5);
   transition: 0.2s;
 }
+/* post-reactions-comment */
+.post-reactions-comment{
+  position: absolute;
+  top:5px;
+  border: 1px solid #CBCBCB;
+  padding:10px;
+  background-color: white;
+  border-radius: 5px;
+}
+.post-reactions-comment span{
+  padding: 10px;
+  font-size: 20px;
+}
+.post-reactions-comment span :hover{
+  -webkit-transform: scale(1.5);
+  transition: 0.2s;
+}
+.like-reply{
+  
+}
+
+.like-comment{
+  border-radius: 5px;
+  padding: 5px;
+}
+.like-comment:hover{
+ background-color: #DDDDDD;
+ 
+ 
+}
+.reply-comment{
+  border-radius: 5px;
+  padding: 5px;
+}
+.reply-comment:hover{
+  background-color: #DDDDDD;
+  
+ }
+/* post-reactions-comment */
 .post-info-detail{
   display: flex;
   flex-direction: column;

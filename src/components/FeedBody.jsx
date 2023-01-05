@@ -31,7 +31,7 @@ function FeedBody(props) {
   if (!postData) {
     return <LoadingPost />;
   }
-  console.log(postData);
+  // console.log(postData);
   return (
     <div>
       <CreatePost userData={userData} />
