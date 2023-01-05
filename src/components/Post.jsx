@@ -381,13 +381,13 @@ function Post(props) {
   }
   // console.log(postData.createAt.split(" "));
   //old
-  console.log(
-    postData.createAt.split(" ")[0].split("-"), //ngay thang
-    postData.createAt.split(" ")[1].split(":") // gio
-  );
-  //now
-  console.log(new Date().toString().split(" ")[4].split(":")); //gio
-  console.log(formatDate(new Date()).split("-")); // ngay thang
+  // console.log(
+  //   postData.createAt.split(" ")[0].split("-"), //ngay thang
+  //   postData.createAt.split(" ")[1].split(":") // gio
+  // );
+  // //now
+  // console.log(new Date().toString().split(" ")[4].split(":")); //gio
+  // console.log(formatDate(new Date()).split("-")); // ngay thang
   let passedTime = 0;
   if (postData.createAt) {
     let dateDayOld = Number(postData.createAt.split(" ")[0].split("-")[2]);

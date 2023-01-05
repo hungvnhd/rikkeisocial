@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 
 function Comment(props) {
   const { comments } = props;
-  // console.log(comments);
+  console.log(comments);
   return (
     <List
       sx={{
@@ -38,7 +38,6 @@ function Comment(props) {
                 </Typography>
               </React.Fragment>
             }
-            
           />
         </ListItem>
       ))}

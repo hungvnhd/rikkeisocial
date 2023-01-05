@@ -11,6 +11,7 @@ import Notifications from "./components/Notifications";
 import Cookies from "js-cookie";
 import PrivateRoutes from "./utils/PrivateRoutes";
 import PreventAuth from "./utils/PreventAuth";
+import Message from "./components/message/Message";
 
 // import SignIn from './components/Sign
 
@@ -54,13 +55,27 @@ function App() {
               </>
             }
           />
-          <Route path='/messaging' />
-          <Route path='/notifications' element={<>
+          <Route
+            path='/messaging/:id'
+            element={
+              <>
+                <NavigateBar />
+                <div className='container-page'></div>
+                <Message />
+              </>
+            }
+          />
+          <Route
+            path='/notifications'
+            element={
+              <>
                 <NavigateBar />
                 <div className='container-page'>
                   <Notifications />
                 </div>
-              </>}/>
+              </>
+            }
+          />
         </Route>
         <Route element={<PreventAuth />}>
           <Route path='/auth/register' element={<SignUp />} />
