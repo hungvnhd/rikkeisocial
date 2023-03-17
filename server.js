@@ -23,7 +23,7 @@ const firebaseConfig = {
   appId: "1:629791864097:web:3b6b70e7db097a5bb47a60",
   measurementId: "G-66TBPVXQ9Q",
 };
-
+require("dotenv").config();
 const authRoutes = require("./routers/auth.routes");
 const userRoutes = require("./routers/user.routes");
 const apiRoutes = require("./routers/api.routes");
@@ -40,6 +40,11 @@ server.use(bodyParser.urlencoded({ extended: true }));
 server.use(morgan("dev"));
 server.use(cookieParser("secret"));
 
+server.all("/", function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
+});
 server.get("/", (req, res) => {
   res.redirect("/auth/register");
 });
